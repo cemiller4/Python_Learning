@@ -1,5 +1,5 @@
 # Sonosite PSU Fixture
-# Some documentation which may be needed to autogenerate buttons:  lambda i=i: self.open_this(i) 
+# Some documentation which may be needed to autogenerate buttons:  lambda i=i: self.open_this(i)
 from Tkinter import *
 import ttk
 root=Tk()
@@ -11,11 +11,51 @@ RAILS = ['Vin', '5P0_VD','12P0_VD', '5P0_VA', '3P3_VA', '5N0_VA', 'TRIPLE', '1P8
          '1P8_VD', '1P2_VD', '3P3_VD', '3P3_VSHIF', '10P0_SW', '10P0_VSHIF',
          '12P0_VSHIF', 'VTXP', 'VTXN', 'BIAS', 'VTXP_BIAS', 'VTXN_BIAS']
 
+RAIL_LIST = (('Vin',        1, 0, 1, 1, 1, 0),
+			 ('5P0_VD',     0, 1, 0, 1, 0, 0),
+			 ('12P0_VD',    1, 1, 1, 1, 0, 0),
+			 ('5P0_VA',     0, 1, 1, 1, 0, 0),
+			 ('3P3_VA',     1, 1, 1, 1, 0, 0),
+             ('5N0_VA',     1, 1, 1, 1, 0, 0),
+             ('TRIPLE',     1, 1, 1, 1, 0, 0),
+             ('1P8_VA',     1, 1, 1, 0, 0, 0),
+             ('1P8_VD',     1, 1, 1, 0, 0, 0),
+             ('1P2_VD',     1, 1, 0, 0, 0, 0),
+             ('3P3_VD',     1, 1, 1, 0, 0, 0),
+             ('3P3_VSHIF',  1, 1, 1, 0, 0, 0),
+             ('10P0_SW',    1, 1, 1, 1, 0, 0),
+             ('10P0_VSHIF', 1, 1, 1, 0, 0, 0),
+             ('12P0_VSHIF', 1, 1, 1, 0, 0, 0),
+             ('VTXP',       1, 1, 1, 1, 0, 0),
+             ('VTXN',       1, 1, 1, 1, 0, 0),
+             ('BIAS',       1, 1, 1, 1, 0, 0),
+             ('VTXP_BIAS',  1, 0, 1, 0, 0, 0),
+             ('VTXN_BIAS',  1, 0, 1, 0, 0, 0))
 
 def enRail(index):
-    print(RAILS[index])
+    print('EN ' + RAILS[index])
     var_obj = rail_val.get(index)
     print(var_obj.get())
+
+def checkButtonOff(index):
+    print('Turn off')
+
+def pgRail(index):
+    print('PG ' + RAILS[index])
+    var_obj = pg_val.get(index)
+    print(var_obj.get())
+
+def pgButtonOff(index):
+    print('Turn off')
+
+def syncEnable(index):
+    print('Sync ' + RAILS[index])
+    var_obj = sync_en.get(index)
+    print(var_obj.get())
+
+def syncButtonOff(index):
+    print('Turn off')
+
 
 Frame_psu = Frame(root, bg="red")
 Frame_rails = Frame(root, bg="blue")
@@ -23,11 +63,11 @@ Frame_hv = Frame(root, bg="green")
 Frame_IO = Frame(root, bg="yellow")
 Frame_bat = Frame(root, bg="purple")
 
-Frame_psu.grid(row = 0, column = 0, sticky=W+E+N+S, columnspan=2) 
-Frame_rails.grid(row = 1, column = 0, sticky=W+E+N+S) 
-Frame_hv.grid(row = 2, column = 0, sticky=W+E+N+S) 
-Frame_IO.grid(row = 2, column = 1, sticky=W+E+N+S) 
-Frame_bat.grid(row = 1, column = 1, sticky=W+E+N+S) 
+Frame_psu.grid(row = 0, column = 0, sticky=W+E+N+S, columnspan=2)
+Frame_rails.grid(row = 1, column = 0, sticky=W+E+N+S)
+Frame_hv.grid(row = 2, column = 0, sticky=W+E+N+S)
+Frame_IO.grid(row = 2, column = 1, sticky=W+E+N+S)
+Frame_bat.grid(row = 1, column = 1, sticky=W+E+N+S)
 
 
 # PCA Part Number Reading
@@ -71,20 +111,53 @@ w=Checkbutton(Frame_psu, variable=ps_ready, selectcolor="#FFF", text="PS_READY")
 w=Label(Frame_rails, justify=LEFT, text="#").grid(row=0, column=0)
 w=Label(Frame_rails, justify=LEFT, padx=10,text="RAIL").grid(row=0, column=1)
 count_row=0
-for count_col in RAILS:
-    Label(Frame_rails, text=count_row+1, width=3).grid(row=1 + count_row, column=0)
-    Label(Frame_rails, text=count_col, width=10).grid(row=1 + count_row, column=1)
-    count_row = count_row + 1
+#for count_col in RAILS:
+#    Label(Frame_rails, text=count_row+1, width=3).grid(row=1 + count_row, column=0)
+#    Label(Frame_rails, text=count_col, width=10).grid(row=1 + count_row, column=1)
+#    count_row = count_row + 1
 
-#Colum 2: Enables 
+#ttp://stackoverflow.com/questions/24663661/tkinter-get-values-from-dynamic-checkboxes
+
+#Colum 2: Enables
 w=Label(Frame_rails, justify=CENTER, padx=10,text="EN").grid(row=0, column=2)
 
 rail_val = dict()
+pg_val = dict()
+sync_en = dict()
 for i in range(0, 20):
+    # Column 0- Row Index
+    Label(Frame_rails, text=count_row+1, width=3).grid(row=1 + count_row, column=0)
+
+    #Column 1 - Rail names
+    Label(Frame_rails, text=RAIL_LIST[i][0], width=10).grid(row=1 + count_row, column=1)
+
+    #Column 2 - Enable signals
     rail_val[i] = IntVar()
-    l = Checkbutton(Frame_rails, variable=rail_val[i], command=lambda i=i: enRail(i)).grid(row=i+1, column=2)
-    
-#ttp://stackoverflow.com/questions/24663661/tkinter-get-values-from-dynamic-checkboxes
+    if RAIL_LIST[i][1] == 1:
+        l = Checkbutton(Frame_rails, variable=rail_val[i], command=lambda i=i: enRail(i)).grid(row=i+1, column=2)
+    else:
+        l = Checkbutton(Frame_rails, variable=rail_val[i],
+            selectcolor="#DDD", command=lambda i=i: checkButtonOff(i)).grid(row=i+1, column=2)
+
+    # Generate Column 3 which are Power Good Checkbuttons
+    pg_val[i] = IntVar()
+    if RAIL_LIST[i][2] == 1:
+        l = Checkbutton(Frame_rails, variable=pg_val[i], command=lambda i=i: pgRail(i)).grid(row=i+1, column=3)
+    else:
+        l = Checkbutton(Frame_rails, variable=pg_val[i],
+            selectcolor="#DDD", command=lambda i=i: pgButtonOff(i)).grid(row=i+1, column=3)
+
+    # Generate Column 4 which are Sync Enable Checkbuttons
+    sync_en[i] = IntVar()
+    if RAIL_LIST[i][3] == 1:
+        l = Checkbutton(Frame_rails, variable=sync_en[i], command=lambda i=i: syncEnable(i)).grid(row=i+1, column=4)
+    else:
+        l = Checkbutton(Frame_rails, variable=sync_en[i],
+            selectcolor="#DDD", command=lambda i=i: syncButtonOff(i)).grid(row=i+1, column=4)
+
+
+    count_row = count_row + 1
+
 
 
 #load_a1 = IntVar()
@@ -112,51 +185,51 @@ for i in range(0, 20):
 
 #Column 3: Power Good
 w=Label(Frame_rails, justify=LEFT, padx=10,text="PG").grid(row=0, column=3)
-load_b1 = IntVar()
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=1, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=2, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=3, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=4, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=5, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=6, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=7, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=8, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=9, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=10, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=11, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=12, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=13, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=14, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=15, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=16, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=17, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=18, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=19, column=3)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=20, column=3)
+# load_b1 = IntVar()
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=1, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=2, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=3, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=4, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=5, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=6, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=7, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=8, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=9, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=10, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=11, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=12, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=13, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=14, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=15, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=16, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=17, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=18, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=19, column=3)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FFF").grid(row=20, column=3)
 
 #Column 4: Sync Enable
 w=Label(Frame_rails, justify=LEFT, padx=10,text="SYNC").grid(row=0, column=4)
-load_b1 = IntVar()
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=1, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=2, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=3, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=4, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=5, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=6, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=7, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=8, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=9, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=10, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=11, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=12, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=13, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=14, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=15, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=16, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=17, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=18, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=19, column=4)
-w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=20, column=4)
+# load_b1 = IntVar()
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=1, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=2, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=3, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=4, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=5, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=6, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=7, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=8, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=9, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=10, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=11, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=12, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=13, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=14, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=15, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=16, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=17, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#FF0").grid(row=18, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=19, column=4)
+# w=Checkbutton(Frame_rails, variable=load_b1, selectcolor="#DDD").grid(row=20, column=4)
 
 #Column 5: SYNC Frequency
 w=Label(Frame_rails, justify=RIGHT,text="FREQ").grid(row=0, column=5)
